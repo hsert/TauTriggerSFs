@@ -49,6 +49,13 @@ double ptCheck(double pt)
 }
 
 
+// Make sure to have only old DMs, DM0, DM1, DM10
+int dmCheck(int dm )
+{
+	if	(dm == 2)	dm = 1;   // Originally, DM=2 was included in oldDM, but with the dynamic strip clustering the second strip was reconstructed together with the first one. So it ends up to DM=1. But,there are still some cases where DM=2 survives.
+	return dm;
+}
+
 TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std::string& trigger, const std::string& year, const std::string& tauWP, const std::string& wpType)
   : inputFileName_(inputFileName),
     trigger_(trigger),
@@ -216,8 +223,9 @@ double TauTriggerSFs2017::getTriggerEfficiencyMCUncertDown(double pt, double eta
 double TauTriggerSFs2017::getTriggerScaleFactor(double pt, double eta, double phi, int dm)
 {
   double pt_checked = ptCheck( pt );
-  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm );
-  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm );
+  int dm_checked = dmCheck( dm );
+  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm_checked );
+  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm_checked );
   if ( effMC < 1e-5 )
   {
     std::cerr << "Eff MC is suspiciously low. Please contact Tau POG." << std::endl;
@@ -245,13 +253,13 @@ double TauTriggerSFs2017::getTriggerScaleFactorUncert(double pt, double eta, dou
   }
 
   double pt_checked = ptCheck( pt );
-
-  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm );
-  double effDataDown = getTriggerEfficiencyDataUncertDown( pt_checked, eta, phi, dm );
+  int dm_checked = dmCheck( dm );
+  double effData = getTriggerEfficiencyData( pt_checked, eta, phi, dm_checked );
+  double effDataDown = getTriggerEfficiencyDataUncertDown( pt_checked, eta, phi, dm_checked );
   double relDataDiff = (effData - effDataDown) / effData;
 
-  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm );
-  double effMCDown = getTriggerEfficiencyMCUncertDown( pt_checked, eta, phi, dm );
+  double effMC = getTriggerEfficiencyMC( pt_checked, eta, phi, dm_checked );
+  double effMCDown = getTriggerEfficiencyMCUncertDown( pt_checked, eta, phi, dm_checked );
   if (effMC < 1e-5)
   {
     // Already printed an error for the nominal case...

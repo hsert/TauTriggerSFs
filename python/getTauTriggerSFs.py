@@ -91,6 +91,11 @@ class getTauTriggerSFs :
         elif pt < 20 : pt = 20
         return pt
 
+    # Make sure to have only old DMs, DM0, DM1, DM10
+    def dmCheck( self, dm ) :
+        if dm == 2 : dm = 1   # Originally, DM=2 was included in oldDM, but with the dynamic strip clustering the second strip was reconstructed together with the first one. So it ends up to DM=1. But,there are still some cases where DM=2 survives.
+        return dm
+
     def getEfficiency( self, pt, eta, phi, fit, uncHist, etaPhiHist, etaPhiAvgHist, uncert='Nominal' ) :
         pt = self.ptCheck( pt )
         eff = fit.Eval( pt )
@@ -155,6 +160,7 @@ class getTauTriggerSFs :
     # return the data/MC scale factor
     def getTriggerScaleFactor( self, pt, eta, phi, dm ) :
         pt = self.ptCheck( pt )
+        dm = self.dmCheck( dm )
         effData = self.getTriggerEfficiencyData( pt, eta, phi, dm )
         effMC = self.getTriggerEfficiencyMC( pt, eta, phi, dm )
         if effMC < 1e-5 :
@@ -175,7 +181,7 @@ class getTauTriggerSFs :
     def getTriggerScaleFactorUncert( self, pt, eta, phi, dm, uncert ) :
         assert( uncert in ['Up', 'Down'] ), "Uncertainties are provided using 'Up'/'Down'"
         pt = self.ptCheck( pt )
-
+        dm = self.dmCheck( dm )
         effData = self.getTriggerEfficiencyData( pt, eta, phi, dm )
         effDataDown = self.getTriggerEfficiencyDataUncertDown( pt, eta, phi, dm )
         relDataDiff = (effData - effDataDown) / effData
